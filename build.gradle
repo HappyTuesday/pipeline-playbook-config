@@ -1,0 +1,86 @@
+group 'com.yit'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['resources']
+        }
+    }
+    test {
+        groovy {
+            srcDirs = ['test']
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        url 'https://nexus3.yit.com/repository/maven-public/'
+    }
+    maven {
+        url 'https://repo.jenkins-ci.org/public/'
+    }
+    maven {
+        url 'http://repo.jenkins-ci.org/releases/'
+    }
+    maven {
+        url 'http://repo.jenkins-ci.org/releases/org/jenkins-ci/main/jenkins-core/'
+    }
+    maven {
+        url 'http://repo.jenkins-ci.org/releases/com/cloudbees/jenkins/plugins/amazon-ecs/'
+    }
+}
+
+dependencies {
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.12'
+    compile group: 'com.yit', name: 'pipeline-playbook-core', version: '4.1-SNAPSHOT', changing: true
+    compile group: 'org.jenkins-ci.main', name: 'jenkins-core', version: '2.60.2'
+    compile group: 'org.apache.maven', name: 'maven-artifact', version: '3.5.4'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.8'
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
+    compile group: "com.aliyun", name: "aliyun-java-sdk-core", version: "3.7.0"
+    compile group: "com.aliyun", name: "aliyun-java-sdk-slb", version: "3.2.8"
+    compile group: "com.aliyun", name: "aliyun-java-sdk-nas", version: "3.2.0"
+    compile group: "com.aliyun", name: "aliyun-java-sdk-dds", version: "2.0.4"
+    compile group: "com.aliyun", name: "aliyun-java-sdk-ecs", version: "4.11.0"
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task encrypt(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "utils.services.AutoEncryptVariablesService"
+    standardInput System.in
+    args (["gradle", "encrypt" ] + (System.getProperty("exec.args")?.tokenize() ?: []))
+}
+
+task decrypt(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "utils.services.AutoEncryptVariablesService"
+    standardInput System.in
+    args (["gradle", "decrypt" ] + (System.getProperty("exec.args")?.tokenize() ?: []))
+}
+
+task generateProdVars(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "utils.services.VerificationService"
+    args (["generateVars", "-e", "prod", "-f", "out/prod-vars.json"])
+}
+
+task generateProdVarsChanges(type: JavaExec) {
+    classpath sourceSets.main.runtimeClasspath
+    main = "utils.services.DiffService"
+//    jvmArgs = ["-Xmx4g"]
+    args = ["diff", "-s", "out/old-prod-vars.json", "-t", "out/prod-vars.json", "-o", "out/prod-vars-changes.json"]
+}

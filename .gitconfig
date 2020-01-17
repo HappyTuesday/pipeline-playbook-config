@@ -1,0 +1,9 @@
+#!/bin/sh
+
+##
+# NOTE:
+# PLEASE MANUALLY EXECUTE FOLLOWING COMMAND LINES SINCE GIT COULD NOT AUTOMATICALLY DO IT FOR US.
+#
+
+# Setup customer hooks path
+git config core.hooksPath .githooks

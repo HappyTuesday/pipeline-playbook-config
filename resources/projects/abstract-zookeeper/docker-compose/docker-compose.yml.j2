@@ -1,0 +1,17 @@
+version: "2"
+
+services:
+  fluentd-zookeeper:
+    image: {{DOCKER_REGISTRY}}/base/zookeeper:3.4.11
+    container_name: {{CONTAINER_NAME}}
+    volumes:
+    - ./zoo.cfg:/zookeeper/conf/zoo.cfg
+    - ./data/:/zookeeper/data/
+    restart: {{CONTAINER_RESTART_POLICY}}
+    network_mode: host
+    environment:
+    - "SERVER_JVMFLAGS={{SERVER_JVMFLAGS}}"
+    logging:
+      driver: json-file
+      options:
+        max-size: 100m

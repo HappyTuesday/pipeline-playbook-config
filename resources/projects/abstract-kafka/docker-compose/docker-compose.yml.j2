@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  fluentd-kafka:
+    image: {{DOCKER_REGISTRY}}/base/kafka:1.1.0
+    container_name: {{CONTAINER_NAME}}
+    volumes:
+    - ./server.properties:/kafka/config/server.properties
+    - ./data/:/kafka/data/
+    restart: {{CONTAINER_RESTART_POLICY}}
+    network_mode: host
+    environment:
+    - "KAFKA_HEAP_OPTS={{HEAP_OPTS}}"
+    - JMX_PORT={{JMX_PORT}}
+    logging:
+      driver: json-file
+      options:
+        max-size: 100m
